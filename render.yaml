@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: solana-tracker-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT wsgi:app & python main.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: solana-tracker-db
+          property: connectionString
+      - key: SOLANA_RPC_URL
+        value: https://api.mainnet-beta.solana.com
+      - key: HELIUS_API_KEY
+        sync: false
+      - key: SOLSCAN_API_KEY
+        sync: false
+      - key: CHECK_INTERVAL
+        value: 60
+      - key: MAX_WALLETS_PER_USER
+        value: 100
+    healthCheckPath: /health
+
+databases:
+  - name: solana-tracker-db
+    databaseName: solanabot
+    user: solanabot_user
+    plan: free
